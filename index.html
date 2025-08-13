@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Guardianes del Salón: Escuadrón de Cuidado</title>
+<style>
+/* ===========================
+   ESTILOS GENERALES
+   =========================== */
+:root{
+  --bg1:#0f1b2d;
+  --bg2:#153b5b;
+  --brand:#32e6a1;
+  --accent:#ffd54d;
+  --danger:#ff5b6e;
+  --ok:#5be38b;
+  --tool: #8bd3ff;
+  --panel:#11263b;
+  --text:#eaf6ff;
+  --muted:#9fc3d9;
+  --cape:#ff4dd8;       /* Personalizable */
+  --cape-dark:#c23aa6;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",Helvetica,Arial,sans-serif}
+button{font:inherit}
+#app{max-width:1040px;margin:0 auto;padding:12px}
+
+/* ===========================
+   CABECERA E HUD
+   =========================== */
+.topbar{
+  display:flex;gap:12px;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  padding:10px 12px;border-radius:14px;backdrop-filter: blur(4px);
+}
+.badge{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);font-weight:700}
+#orderWrap{flex:1;margin:0 10px;height:16px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);position:relative;overflow:hidden}
+#orderBar{position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,#2ee6a1,#56ffa8);box-shadow:0 0 12px #2ee6a1 inset;transition:width .25s}
+
+/* ===========================
+   PANTALLAS
+   =========================== */
+.screen{display:none}
+.screen.active{display:block}
+
+/* ===========================
+   BRIEFING
+   =========================== */
+.card{
+  border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+  box-shadow:0 8px 24px rgba(0,0,0,.35)
+}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+.h1{font-size:clamp(22px,3.4vw,32px);margin:8px 0 2px;font-weight:900}
+.h2{font-size:clamp(18px,2.5vw,24px);margin:6px 0 2px;font-weight:800;color:var(--accent)}
+.p{color:var(--muted);line-height:1.35}
+
+/* Escena futurista */
+.scene{
+  height:280px;position:relative;border-radius:16px;background:
+    radial-gradient(80% 80% at 50% 0%, rgba(49,192,255,.15), transparent 60%),
+    linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  border:1px dashed rgba(255,255,255,.15);overflow:hidden
+}
+.floor{
+  position:absolute;left:0;right:0;bottom:-30px;height:160px;
+  background:conic-gradient(from 90deg at 50% 100%, rgba(0,0,0,.2), rgba(255,255,255,.05), rgba(0,0,0,.2));
+  transform:skewY(-8deg)
+}
+.pedestal{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-32%);width:320px;height:140px;border-radius:16px;
+  background:linear-gradient(180deg,#0d2035,#0b1b2c);border:1px solid rgba(255,255,255,.12)
+}
+/* Tablet en pedestal */
+.tablet{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-45%);width:220px;height:130px;border-radius:14px;
+  background:linear-gradient(180deg,#203b56,#0f2236);border:2px solid #3cc1ff;box-shadow:0 8px 26px rgba(60,193,255,.35)
+}
+.tablet:before{ /* pantalla */
+  content:"";position:absolute;left:10px;top:10px;right:10px;bottom:10px;border-radius:8px;background:linear-gradient(180deg,#021521,#04243a)
+}
+
+/* Guía Experto (avatar simple) */
+.guia{
+  position:absolute;right:16px;bottom:8px;background:linear-gradient(180deg,#2b3e5a,#1e2e47);
+  border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:8px 10px;display:flex;gap:8px;align-items:center
+}
+.guia .face{
+  width:46px;height:46px;border-radius:50%;background:
+  radial-gradient(circle at 35% 35%, #ffe9c7 0 55%, #eac89a 56% 100%);
+  border:2px solid rgba(255,255,255,.3);position:relative;animation:float 2s ease-in-out infinite
+}
+.face:before{content:"👓";position:absolute;left:7px;top:8px;font-size:22px}
+@keyframes float{50%{transform:translateY(-3px)}}
+
+/* Animaciones de reglas */
+.ruleRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px}
+.rule{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:14px;min-height:100px;position:relative;overflow:hidden;padding:10px
+}
+.rule h4{margin:0 0 6px;font-size:15px;color:#9fe9ff}
+.rule .mini{position:absolute;left:8px;right:8px;bottom:8px;height:48px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
+/* Agua acercándose */
+.drop{position:absolute;left:-18px;top:6px;font-size:22px;animation:slideIn 3s linear infinite}
+@keyframes slideIn{to{transform:translateX(260px)}}
+/* Fila/turnos */
+.queue{position:absolute;right:6px;top:8px;display:flex;gap:6px}
+.queue span{filter:saturate(.8)}
+.queue span:nth-child(odd){animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-3px)}}
+/* Batería baja */
+.battery{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:44px;height:22px;border-radius:6px;border:2px solid #9fe9ff}
+.battery:after{content:"";position:absolute;right:-6px;top:6px;width:4px;height:10px;background:#9fe9ff;border-radius:2px}
+.bLevel{position:absolute;left:3px;top:3px;bottom:3px;width:80%;border-radius:4px;background:#5be38b;animation:drain 3s linear infinite}
+@keyframes drain{from{width:80%;background:#5be38b}to{width:8%;background:#ff6b6b}}
+
+/* Botón comenzar */
+#startBtn{
+  width:100%;padding:14px 18px;margin-top:10px;border-radius:14px;border:2px solid var(--brand);
+  background:radial-gradient(circle at 50% 40%, rgba(50,230,161,.25), rgba(50,230,161,.06));
+  color:#eafff7;font-weight:900;font-size:20px;letter-spacing:.3px;cursor:pointer;position:relative;
+  animation:pulse 1.4s ease-in-out infinite
+}
+@keyframes pulse{
+  50%{box-shadow:0 0 0 10px rgba(50,230,161,.08), 0 0 0 0 rgba(50,230,161,.0)}
+}
+
+/* ===========================
+   CAMPO DE JUEGO
+   =========================== */
+.board{
+  margin-top:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px
+}
+.station{
+  position:relative;min-height:160px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12);overflow:hidden
+}
+.avatar{
+  position:absolute;left:10px;top:8px;font-size:40px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))
+}
+.cape{
+  position:absolute;left:26px;top:36px;width:26px;height:18px;background:linear-gradient(180deg,var(--cape),var(--cape-dark));border-radius:0 0 16px 16px;transform:skewX(-12deg) rotate(-6deg);opacity:.85
+}
+.tablet2{
+  position:absolute;right:12px;bottom:12px;width:100px;height:64px;border-radius:10px;background:linear-gradient(180deg,#1a3350,#0e2136);
+  border:2px solid #3cc1ff;box-shadow:0 8px 16px rgba(60,193,255,.25)
+}
+.event{
+  position:absolute;right:18px;top:10px;display:flex;gap:6px;align-items:center;background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.18);padding:6px 8px;border-radius:12px;backdrop-filter:blur(2px)
+}
+.icon{font-size:22px}
+.timer{width:90px;height:8px;border-radius:999px;background:rgba(255,255,255,.15);overflow:hidden;border:1px solid rgba(255,255,255,.2)}
+.timer>i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#2ee6a1,#9cffd1)}
+.fade{animation:fade .2s linear 3}
+@keyframes fade{50%{opacity:.4}}
+
+/* ===========================
+   CINTURÓN DE HERRAMIENTAS
+   =========================== */
+.belt{
+  position:sticky;bottom:6px;margin-top:10px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap
+}
+.tool{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  min-width:120px;padding:10px;border-radius:16px;border:2px solid var(--tool);
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+  cursor:grab;touch-action:none;
+  box-shadow:0 6px 0 rgba(0,0,0,.25)
+}
+.tool .ticon{font-size:26px}
+.tool .tname{font-weight:800;color:#cfeeff;text-align:center}
+.tool.breathe{animation:breath 1.6s ease-in-out infinite}
+@keyframes breath{50%{transform:translateY(-2px);box-shadow:0 8px 0 rgba(0,0,0,.25)}}
+
+/* Fantasma de arrastre */
+.ghost{
+  position:fixed;left:0;top:0;transform:translate(-9999px,-9999px);
+  pointer-events:none;padding:8px 12px;border-radius:999px;background:#0b1c2b;border:2px solid var(--tool);z-index:9999
+}
+
+/* ===========================
+   MENSAJES Y FRASES
+   =========================== */
+#phrase{
+  margin-top:8px;text-align:center;font-weight:800;color:#cdefff;min-height:26px
+}
+
+/* ===========================
+   MODALES (Victoria/Derrota/Config)
+   =========================== */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9998;padding:12px
+}
+.modal.show{display:flex}
+.modal .inner{
+  width:min(680px,96%);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);
+  border-radius:16px;padding:16px;box-shadow:0 24px 60px rgba(0,0,0,.5)
+}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+select,input[type=color]{padding:6px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:#0f2236;color:#e9fbff}
+.action{padding:10px 12px;border-radius:12px;border:2px solid var(--brand);background:rgba(50,230,161,.08);cursor:pointer;font-weight:900}
+.medal{font-size:36px}
+
+/* Escenarios visuales (tema) */
+.theme-lab{--bg1:#141530;--bg2:#2a2457;--brand:#9b7bff}
+.theme-library{--bg1:#1b2a18;--bg2:#2d4a25;--brand:#7bd77b}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- HUD -->
+  <div class="topbar">
+    <div class="badge" id="scenarioName">Salón de Tecnología</div>
+    <div id="orderWrap" aria-label="Medidor de Orden del Salón"><div id="orderBar"></div></div>
+    <div class="badge">Ronda: <span id="roundTxt">0</span>/3</div>
+    <div class="badge">Puntos: <span id="scoreTxt">0</span></div>
+    <div class="badge">Récord: <span id="hiTxt">0</span></div>
+    <button class="action" id="openCfg" aria-label="Abrir configuración">⚙️</button>
+  </div>
+
+  <!-- FRASES EDUCATIVAS -->
+  <div id="phrase"></div>
+
+  <!-- ======= PANTALLA BRIEFING ======= -->
+  <section id="brief" class="screen active">
+    <div class="grid2">
+      <div class="card">
+        <div class="h1">Guardianes del Salón: <span style="color:var(--brand)">Escuadrón de Cuidado</span></div>
+        <p class="p">¡Bienvenido, Guardián! Soy tu <b>Guía Experto</b>. Hoy aprenderás a mantener el orden y la seguridad en nuestro salón de tecnología. Domina estas 3 <b>Reglas del Cuidado</b> y salva el día con intervenciones rápidas.</p>
+        <div class="ruleRow">
+          <div class="rule" aria-label="Regla 1: Cuidado del material">
+            <h4>1) Cuidado del material</h4>
+            <div class="mini">
+              <div class="drop">💧</div>
+              <div class="tablet" style="position:absolute;left:60px;top:-34px;transform:none;box-shadow:none;"></div>
+            </div>
+            <small class="p">No uses agua. Usa siempre <b>paño seco</b>.</small>
+          </div>
+          <div class="rule" aria-label="Regla 2: Respeto de turnos">
+            <h4>2) Respeto de turnos</h4>
+            <div class="mini">
+              <div class="queue">
+                <span>🙂</span><span>😃</span><span>😊</span>
+              </div>
+            </div>
+            <small class="p">Espera tu turno, <b>no arrebates</b>.</small>
+          </div>
+          <div class="rule" aria-label="Regla 3: Apagado responsable">
+            <h4>3) Apagado responsable</h4>
+            <div class="mini">
+              <div class="battery"><div class="bLevel"></div></div>
+            </div>
+            <small class="p">Al terminar, <b>apaga la tablet</b> para conservar batería.</small>
+          </div>
+        </div>
+        <button id="startBtn">✨ ¡COMENZAR MISIÓN! ✨</button>
+      </div>
+      <div class="card">
+        <div class="scene" aria-hidden="true">
+          <div class="pedestal"></div>
+          <div class="tablet"></div>
+          <div class="floor"></div>
+          <div class="guia">
+            <div class="face"></div>
+            <div>
+              <div class="h2">Guía Experto</div>
+              <div class="p">“Escucha mi voz y sigue las reglas. ¡Serás líder del Escuadrón!”</div>
+            </div>
+          </div>
+        </div>
+        <div class="p" style="margin-top:10px">
+          <b>Cómo jugar:</b> Cuando veas un problema sobre una estación, <u>arrastra</u> la herramienta correcta desde el cinturón hasta la estación afectada antes de que se acabe la barra de tiempo.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= PANTALLA JUEGO ======= -->
+  <section id="game" class="screen">
+    <div class="board" id="board" aria-live="polite"></div>
+    <div class="belt">
+      <div class="tool breathe" data-tool="cloth" role="button" aria-grabbed="false" tabindex="0">
+        <div class="ticon">🧼</div><div class="tname">Paño Seco</div>
+      </div>
+      <div class="tool breathe" data-tool="turns" role="button" aria-grabbed="false" tabindex="0">
+        <div class="ticon">⏳</div><div class="tname">Reloj de Espera</div>
+      </div>
+      <div class="tool breathe" data-tool="power" role="button" aria-grabbed="false" tabindex="0">
+        <div class="ticon">⚫</div><div class="tname">Botón de Apagado</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= MODAL FINAL ======= -->
+  <div id="endModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+    <div class="inner">
+      <div class="h1" id="endTitle">Resultado</div>
+      <p class="p" id="endMsg"></p>
+      <div class="row" style="justify-content:space-between">
+        <div class="h2">Puntuación: <span id="finalScore">0</span> <span class="medal" id="medal"></span></div>
+        <div class="h2">Récord: <span id="finalHi">0</span></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="action" id="retryBtn">🔁 Intentar de nuevo</button>
+        <button class="action" id="menuBtn">🏠 Volver al briefing</button>
+      </div>
+      <hr style="border-color:rgba(255,255,255,.15)">
+      <div class="h2">Escenarios desbloqueables</div>
+      <div class="row">
+        <button class="action" id="unlockLibrary" disabled>📚 Biblioteca Digital</button>
+        <button class="action" id="unlockLab" disabled>🧪 Laboratorio de Robótica</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= MODAL CONFIG ======= -->
+  <div id="cfgModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cfgTitle">
+    <div class="inner">
+      <div class="h1" id="cfgTitle">Personalización</div>
+      <div class="row">
+        <label>Capa (color): <input id="capePicker" type="color" value="#ff4dd8"></label>
+        <label>Diseño de herramientas:
+          <select id="toolStyle">
+            <option value="default">Clásico</option>
+            <option value="rounded">Redondeado</option>
+            <option value="square">Cuadrado</option>
+          </select>
+        </label>
+        <label>Escenario:
+          <select id="scenarioSel">
+            <option value="tech">Salón de Tecnología</option>
+            <option value="library" disabled>Biblioteca Digital (bloqueado)</option>
+            <option value="lab" disabled>Laboratorio de Robótica (bloqueado)</option>
+          </select>
+        </label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="action" id="saveCfg">Guardar</button>
+        <button class="action" id="closeCfg">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===========================
+     LÓGICA DEL JUEGO (JS)
+     =========================== -->
+<script>
+/* =========================================================
+   Guardianes del Salón: Escuadrón de Cuidado
+   Juego educativo single-file sin dependencias
+   ---------------------------------------------------------
+   Objetivo: Detectar malas prácticas y aplicar la herramienta
+   adecuada arrastrándola a la estación correcta antes de que
+   termine la barra de tiempo. Voz en off y accesibilidad básica.
+   ========================================================= */
+
+(() => {
+  // ---------- Estado global ----------
+  const el = s => document.querySelector(s);
+  const els = s => Array.from(document.querySelectorAll(s));
+  const screens = {brief: el('#brief'), game: el('#game')}
+  const board = el('#board');
+  const orderBar = el('#orderBar');
+  const roundTxt = el('#roundTxt');
+  const scoreTxt = el('#scoreTxt');
+  const phrase = el('#phrase');
+  const hiTxt = el('#hiTxt');
+  const endModal = el('#endModal');
+  const cfgModal = el('#cfgModal');
+  const scenarioName = el('#scenarioName');
+
+  const VOICE_RATE = .95; // velocidad de narración
+  const ORDER_MAX = 100;
+
+  let score = 0, order = ORDER_MAX, round = 0;
+  let running = false;
+  let eventsActive = []; // eventos en progreso
+  let ghost; // elemento fantasma para arrastrar
+  let dragTool = null; // {type, el}
+  let settings = loadSettings();
+  let highScore = +localStorage.getItem('guardianes_hi') || 0;
+  hiTxt.textContent = highScore;
+
+  // Estaciones de trabajo (4)
+  const stations = new Array(4).fill(0).map((_,i)=>({ id:i, el:null, busy:false }));
+
+  // Definición de tipos de evento
+  const EVENT_TYPES = {
+    cloth:  {key:'cloth',  icon:'💧', target:'avatar',    tool:'cloth',
+      name:'Cuidado del material', successVoice:'¡Alto ahí! El agua puede causar un cortocircuito. ¡Usa este paño seco!',
+      phrase:'¡Para la pantalla sucia, un paño seco es la astucia!'},
+    turns:  {key:'turns',  icon:'✋', target:'avatar',    tool:'turns',
+      name:'Respeto de turnos', successVoice:'¡Un momento! Respetar el turno es jugar en equipo.',
+      phrase:'¡El turno es sagrado, respeto asegurado!'},
+    power:  {key:'power',  icon:'🔋', target:'tablet',    tool:'power',
+      name:'Apagado responsable', successVoice:'¡Espera! Si apagamos, tu compañero tendrá batería.',
+      phrase:'¡Apagar al terminar, energía para empezar!'}
+  };
+
+  // Dificultad por ronda
+  const DIFF = [
+    { name:'Ronda 1', time:5000, concurrent:1, spawnDelay:[900,1300] },
+    { name:'Ronda 2', time:4000, concurrent:1, spawnDelay:[750,1100] },
+    { name:'Ronda 3', time:3000, concurrent:2, spawnDelay:[600,950] }
+  ];
+
+  // ---------- Utilidades ----------
+  function speak(text){
+    try{
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'es-MX';
+      utter.rate = VOICE_RATE;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+    }catch(e){}
+  }
+  function setOrder(val){
+    order = Math.max(0, Math.min(ORDER_MAX, val));
+    orderBar.style.width = (order/ORDER_MAX*100)+'%';
+  }
+  function addPoints(n){ score += n; scoreTxt.textContent = score; }
+  function showPhrase(msg){ phrase.textContent = msg; phrase.classList.add('fade'); setTimeout(()=>phrase.classList.remove('fade'), 400); }
+  function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  function loadSettings(){
+    const raw = localStorage.getItem('guardianes_settings');
+    let def = {cape:'#ff4dd8', toolStyle:'default', scenario:'tech', unlocked:{library:false,lab:false}};
+    if(raw){ try{ def = Object.assign(def, JSON.parse(raw)); }catch(e){} }
+    applyTheme(def);
+    return def;
+  }
+  function saveSettings(){ localStorage.setItem('guardianes_settings', JSON.stringify(settings)); }
+
+  function applyTheme(s){
+    // capa
+    document.documentElement.style.setProperty('--cape', s.cape || '#ff4dd8');
+    document.documentElement.style.setProperty('--cape-dark', shadeColor(s.cape || '#ff4dd8', -20));
+    // escenario
+    document.body.classList.remove('theme-lab','theme-library');
+    if(s.scenario==='library'){ document.body.classList.add('theme-library'); scenarioName.textContent='Biblioteca Digital'; }
+    else if(s.scenario==='lab'){ document.body.classList.add('theme-lab'); scenarioName.textContent='Laboratorio de Robótica'; }
+    else { scenarioName.textContent='Salón de Tecnología'; }
+    // desbloqueos UI
+    el('#scenarioSel').querySelector('option[value="library"]').disabled = !s.unlocked?.library;
+    el('#scenarioSel').querySelector('option[value="lab"]').disabled = !s.unlocked?.lab;
+    el('#unlockLibrary').disabled = !s.unlocked?.library;
+    el('#unlockLab').disabled = !s.unlocked?.lab;
+  }
+  function shadeColor(hex, percent){
+    const f = parseInt(hex.slice(1),16);
+    const t = percent<0?0:255;
+    const p = Math.abs(percent)/100;
+    const R = f>>16, G = f>>8&0x00FF, B = f&0x0000FF;
+    const n = (0x1000000 + (Math.round((t-R)*p)+R)*0x10000 + (Math.round((t-G)*p)+G)*0x100 + (Math.round((t-B)*p)+B)).toString(16).slice(1);
+    return '#'+n;
+  }
+
+  // ---------- Construir tablero ----------
+  function buildBoard(){
+    board.innerHTML='';
+    stations.forEach(st=>{
+      const d = document.createElement('div');
+      d.className='station';
+      d.dataset.id=st.id;
+      d.innerHTML = `
+        <div class="avatar" aria-label="Compañero">${['🧑','👧','👦','🧒'][st.id%4]}</div>
+        <div class="cape" aria-hidden="true"></div>
+        <div class="tablet2" aria-label="Tablet"></div>
+      `;
+      st.el = d; st.busy=false;
+      board.appendChild(d);
+    });
+  }
+
+  // ---------- Gestión de pantallas ----------
+  function showScreen(name){
+    Object.values(screens).forEach(s=>s.classList.remove('active'));
+    screens[name].classList.add('active');
+  }
+
+  // ---------- Briefing narrado ----------
+  function briefingVoice(){
+    const lines = [
+      "¡Saludos, Guardián! Soy tu Guía Experto.",
+      "Regla uno: Cuidado del material. No uses agua. Usa siempre paño seco.",
+      "Regla dos: Respeto de turnos. Espera tu turno, no arrebates.",
+      "Regla tres: Apagado responsable. Al terminar, apaga la tablet para conservar batería.",
+      "Arrastra la herramienta correcta a la estación que lo necesite. ¿Listo? ¡Comienza la misión!"
+    ];
+    (async()=>{
+      for(const l of lines){ speak(l); await wait(1000); }
+    })();
+  }
+
+  // ---------- Eventos de juego ----------
+  function canSpawnMore(){
+    const conf = DIFF[round-1];
+    return eventsActive.length < conf.concurrent;
+  }
+
+  function spawnEvent(){
+    const conf = DIFF[round-1];
+    const typeKey = ['cloth','turns','power'][rand(0,2)];
+    const type = EVENT_TYPES[typeKey];
+
+    // Elegir estación libre
+    const free = stations.filter(s=>!s.busy);
+    if(!free.length) return;
+    const st = free[rand(0, free.length-1)];
+    st.busy = true;
+
+    // Crear UI del evento
+    const evEl = document.createElement('div');
+    evEl.className='event';
+    evEl.innerHTML = `<span class="icon">${type.icon}</span><div class="timer"><i></i></div>`;
+    st.el.appendChild(evEl);
+
+    const timerBar = evEl.querySelector('i');
+    let start = performance.now();
+    let ended = false;
+
+    const ev = { station:st, type, el:evEl, timerBar, end:finishFail };
+    eventsActive.push(ev);
+
+    // Animación de tiempo
+    function tick(now){
+      if(ended) return;
+      const t = (now - start)/conf.time;
+      const rem = Math.max(0, 1-t);
+      timerBar.style.width = (rem*100)+'%';
+      if(rem<=0){ finishFail(); return; }
+      ev.frame = requestAnimationFrame(tick);
+    }
+    ev.frame = requestAnimationFrame(tick);
+
+    function finishSuccess(){
+      if(ended) return; ended=true;
+      cancelAnimationFrame(ev.frame);
+      st.busy=false;
+      evEl.remove();
+      eventsActive = eventsActive.filter(e=>e!==ev);
+      // feedback positivo
+      addPoints(10);
+      setOrder(order + 8);
+      showPhrase(type.phrase);
+      speak(type.successVoice);
+      // flash
+      st.el.classList.add('fade'); setTimeout(()=>st.el.classList.remove('fade'),200);
+      checkProgress();
+    }
+
+    function finishFail(){
+      if(ended) return; ended=true;
+      cancelAnimationFrame(ev.frame);
+      st.busy=false;
+      evEl.remove();
+      eventsActive = eventsActive.filter(e=>e!==ev);
+      // feedback negativo
+      addPoints(-10);
+      setOrder(order - 20);
+      showPhrase('¡Ups! Observa y vuelve a intentarlo. Recuerda las 3 reglas.');
+      speak('Ha ocurrido un accidente. Aprendizaje: revisa la regla adecuada antes de actuar.');
+      // sacudida
+      st.el.style.transition='transform .08s';
+      st.el.style.transform='translateX(-4px)'; setTimeout(()=>st.el.style.transform='translateX(4px)',80);
+      setTimeout(()=>st.el.style.transform='',160);
+      checkProgress();
+    }
+
+    ev.finishSuccess = finishSuccess;
+    ev.finishFail = finishFail;
+  }
+
+  function checkProgress(){
+    // Derrota
+    if(order<=0){ endGame(false); return; }
+    // Avance de ronda: cuando ya no quedan eventos activos y se alcanzó el cupo de spawns por ronda
+    // Para simplicidad, cada ronda dura una cantidad de tiempo definida por número de spawns objetivo
+  }
+
+  // Control de oleadas por ronda (número de spawns)
+  const RONDA_SPAWNS = [8,10,12];
+  let spawnsDone = 0;
+  let spawnLoopId = 0;
+
+  async function startRound(n){
+    round = n;
+    roundTxt.textContent = round;
+    spawnsDone = 0;
+    // Limpieza de eventos anteriores
+    eventsActive.forEach(e=>{ try{ cancelAnimationFrame(e.frame); e.el.remove(); e.station.busy=false; }catch(_){}})
+    eventsActive = [];
+    // Bucle de generación
+    const conf = DIFF[n-1];
+    while(running && round===n){
+      if(spawnsDone>=RONDA_SPAWNS[n-1] && eventsActive.length===0) break;
+      if(canSpawnMore() && spawnsDone<RONDA_SPAWNS[n-1]){
+        spawnEvent(); spawnsDone++;
+      }
+      const d = rand(conf.spawnDelay[0], conf.spawnDelay[1]);
+      await wait(d);
+    }
+    // esperar a que terminen todos
+    while(running && eventsActive.length>0){ await wait(50); }
+    if(!running) return;
+    if(order<=0){ endGame(false); return; }
+    if(n<3){ speak(`Ronda ${n} completada. Prepárate para la siguiente.`); await wait(900); startRound(n+1); }
+    else { endGame(true); }
+  }
+
+  function startGame(){
+    score=0; order=ORDER_MAX; setOrder(order); addPoints(0); scoreTxt.textContent='0'; phrase.textContent='';
+    buildBoard(); running=true;
+    showScreen('game');
+    speak('¡Comienza la misión! Observa las estaciones y actúa con rapidez.');
+    startRound(1);
+  }
+
+  // ---------- Fin de partida ----------
+  function endGame(victory){
+    running=false;
+    const modal = endModal;
+    const endMsg = el('#endMsg');
+    const medal = el('#medal');
+    const finalScore = el('#finalScore');
+    const finalHi = el('#finalHi');
+
+    // Puntaje y récord
+    if(score>highScore){ highScore=score; localStorage.setItem('guardianes_hi', String(highScore)); }
+    finalScore.textContent = score;
+    hiTxt.textContent = highScore;
+    finalHi.textContent = highScore;
+
+    // Medallas
+    let med = '🥉'; if(score>=220) med='🥈'; if(score>=280) med='🥇';
+    medal.textContent = med;
+
+    if(victory){
+      endMsg.innerHTML = '¡Victoria! Superaste las 3 rondas con el <b>Orden del Salón</b> en verde. El Guía te entrega la <b>Capa de Guardián Líder</b> y una medalla.';
+      speak('¡Excelente trabajo, Guardián! Has liderado con ejemplo. Medalla otorgada.');
+      // Desbloqueos por puntaje
+      if(score>=180){ settings.unlocked.library = true; }
+      if(score>=260){ settings.unlocked.lab = true; }
+      saveSettings(); applyTheme(settings);
+    }else{
+      endMsg.innerHTML = 'El <b>Orden del Salón</b> llegó a cero. El Guía reúne al grupo y repasa las 3 reglas. ¡Puedes intentarlo de nuevo!';
+      speak('No pasa nada. Repasemos las reglas y volvamos a intentarlo. Tú puedes.');
+    }
+    el('#unlockLibrary').disabled = !settings.unlocked.library;
+    el('#unlockLab').disabled = !settings.unlocked.lab;
+    modal.classList.add('show');
+  }
+
+  // ---------- Arrastrar y Soltar (táctil/mouse/teclado) ----------
+  function makeGhost(label){
+    if(!ghost){ ghost = document.createElement('div'); ghost.className='ghost'; document.body.appendChild(ghost); }
+    ghost.textContent = label; return ghost;
+  }
+  function onPointerDownTool(ev){
+    const t = ev.currentTarget;
+    dragTool = { type: t.dataset.tool, el:t };
+    t.setAttribute('aria-grabbed','true');
+    const label = t.innerText.trim().split('\n')[0]+' '+t.querySelector('.tname').textContent;
+    const g = makeGhost(label);
+    g.style.transform = `translate(${ev.clientX}px, ${ev.clientY}px)`;
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp, {once:true});
+  }
+  function onPointerMove(ev){
+    if(!dragTool) return;
+    ghost.style.transform = `translate(${ev.clientX+12}px, ${ev.clientY+6}px)`;
+  }
+  function onPointerUp(ev){
+    if(!dragTool) return;
+    const drop = document.elementFromPoint(ev.clientX, ev.clientY);
+    // Buscar si cayó dentro de una estación
+    const stationEl = drop?.closest?.('.station');
+    if(stationEl){
+      const stId = +stationEl.dataset.id;
+      // Si hay evento activo en esa estación, validar herramienta
+      const evMatch = eventsActive.find(e=>e.station.id===stId);
+      if(evMatch){
+        if(evMatch.type.tool===dragTool.type){ evMatch.finishSuccess(); }
+        else { evMatch.finishFail(); }
+      }
+    }
+    dragTool.el.setAttribute('aria-grabbed','false');
+    dragTool = null;
+    if(ghost) ghost.style.transform='translate(-9999px,-9999px)';
+    window.removeEventListener('pointermove', onPointerMove);
+  }
+
+  // Accesibilidad por teclado: Enter/Espacio para “tomar” y luego clic sobre estación
+  els('.tool').forEach(t=>{
+    t.addEventListener('pointerdown', onPointerDownTool);
+    t.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onPointerDownTool({currentTarget:t, clientX:0, clientY:0}); }
+    })
+  });
+
+  // ---------- Botones y modales ----------
+  el('#startBtn').addEventListener('click', ()=>{ showScreen('game'); startGame(); });
+  el('#retryBtn').addEventListener('click', ()=>{ endModal.classList.remove('show'); startGame(); });
+  el('#menuBtn').addEventListener('click', ()=>{ endModal.classList.remove('show'); showScreen('brief'); briefingVoice(); });
+
+  // Config
+  el('#openCfg').addEventListener('click', ()=>{
+    el('#capePicker').value = settings.cape || '#ff4dd8';
+    el('#toolStyle').value = settings.toolStyle || 'default';
+    const sel = el('#scenarioSel');
+    sel.value = settings.scenario || 'tech';
+    // bloquear opciones según desbloqueo
+    sel.querySelector('option[value="library"]').disabled = !settings.unlocked.library;
+    sel.querySelector('option[value="lab"]').disabled = !settings.unlocked.lab;
+    cfgModal.classList.add('show');
+  });
+  el('#saveCfg').addEventListener('click', ()=>{
+    settings.cape = el('#capePicker').value;
+    settings.toolStyle = el('#toolStyle').value;
+    settings.scenario = el('#scenarioSel').value;
+    saveSettings(); applyTheme(settings);
+    // Cambiar estilo de herramientas
+    els('.tool').forEach(t=>{
+      t.style.borderRadius = settings.toolStyle==='square' ? '8px' : settings.toolStyle==='rounded' ? '22px' : '16px';
+    });
+    cfgModal.classList.remove('show');
+  });
+  el('#closeCfg').addEventListener('click', ()=>cfgModal.classList.remove('show'));
+
+  // Cambiar escenario desde modal final (botones)
+  el('#unlockLibrary').addEventListener('click', ()=>{ settings.scenario='library'; saveSettings(); applyTheme(settings); endModal.classList.remove('show'); });
+  el('#unlockLab').addEventListener('click', ()=>{ settings.scenario='lab'; saveSettings(); applyTheme(settings); endModal.classList.remove('show'); });
+
+  // ---------- Inicialización ----------
+  buildBoard();
+  showScreen('brief');
+  briefingVoice();
+
+  // Recordatorio de lectura visual en el cinturón
+  setInterval(()=>{ els('.tool').forEach(t=>t.classList.toggle('breathe')); }, 1800);
+
+})();
+</script>
+</body>
+</html>
