@@ -83,7 +83,6 @@ button{font:inherit}
 }
 @keyframes floatUp { to { transform: translate(-50%, -150%); opacity: 0; } }
 
-/* CORRECCIÓN PAUSA: Estilos para el nuevo contenido del overlay */
 #pauseOverlay {
   position: fixed;
   inset: 0;
@@ -190,7 +189,6 @@ button{font:inherit}
   </div>
 </div>
 
-<!-- CORRECCIÓN PAUSA: El overlay ahora contiene un botón para reanudar -->
 <div id="pauseOverlay" style="display:none;">
   <div class="pause-content">
     <h1>PAUSA</h1>
@@ -205,7 +203,6 @@ button{font:inherit}
   const board=el('#board'), orderBar=el('#orderBar'), roundTxt=el('#roundTxt'), scoreTxt=el('#scoreTxt'), phrase=el('#phrase');
   const endModal=el('#endModal'), cfgModal=el('#cfgModal'), scenarioName=el('#scenarioName'), startScreen=el('#startScreen'), skipBtn=el('#skipTut'), hiTxt=el('#hiTxt');
   const pauseBtn=el('#pauseBtn'), pauseOverlay=el('#pauseOverlay');
-  // CORRECCIÓN PAUSA: Seleccionar el nuevo botón de reanudar
   const resumeBtn = el('#resumeBtn');
 
   const GAME_CONSTANTS = {
@@ -362,7 +359,7 @@ button{font:inherit}
         if(ev.ended) return; ev.ended=true; cancelAnimationFrame(ev.frame); st.busy=false; evEl.remove(); 
         eventsActive=eventsActive.filter(e=>e!==ev); 
         addPoints(GAME_CONSTANTS.POINTS_SUCCESS); setOrder(order+GAME_CONSTANTS.ORDER_SUCCESS); 
-        showPhrase(type.phrase); gameSpeak(type.successVoice); 
+        showPhrase(type.phrase); if(!isTutorial) gameSpeak(type.successVoice); 
         st.el.classList.add('fade'); setTimeout(()=>st.el.classList.remove('fade'),200); 
         SoundManager.playSound('success'); showFloatingScore(st.el, `+${GAME_CONSTANTS.POINTS_SUCCESS}`, true);
         checkProgress(); 
@@ -371,7 +368,7 @@ button{font:inherit}
         if(ev.ended) return; ev.ended=true; cancelAnimationFrame(ev.frame); st.busy=false; evEl.remove(); 
         eventsActive=eventsActive.filter(e=>e!==ev); 
         addPoints(GAME_CONSTANTS.POINTS_FAIL); setOrder(order-GAME_CONSTANTS.ORDER_FAIL); 
-        showPhrase('¡Ups! Observa y vuelve a intentarlo.'); gameSpeak('Ha ocurrido un accidente. Revisa la regla adecuada.'); 
+        showPhrase('¡Ups! Observa y vuelve a intentarlo.'); if(!isTutorial) gameSpeak('Ha ocurrido un accidente. Revisa la regla adecuada.'); 
         st.el.style.transition='transform .08s'; st.el.style.transform='translateX(-4px)'; setTimeout(()=>st.el.style.transform='translateX(4px)',80); setTimeout(()=>st.el.style.transform='',160); 
         SoundManager.playSound('fail'); showFloatingScore(st.el, `${GAME_CONSTANTS.POINTS_FAIL}`, false);
         checkProgress(); 
@@ -458,7 +455,8 @@ button{font:inherit}
     t.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onPointerDownTool({currentTarget:t, clientX:0, clientY:0, preventDefault:()=>{}}); }});
   });
   
-  async function animateToolToStation(toolType, stationIndex, succeed=true, evObj=null, ms=900){
+  function centerOf(elm){ const r=elm.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}; }
+  async function animateToolToStation(toolType, stationIndex, succeed=true, evObj=null, ms=1200){
     const toolEl=el(`.tool[data-tool="${toolType}"]`), stationEl=stations[stationIndex]?.el; if(!toolEl||!stationEl) return;
     const label=toolEl.querySelector('.ticon').textContent+' '+toolEl.querySelector('.tname').textContent, g=makeGhost(label);
     const from=centerOf(toolEl), to=centerOf(stationEl), start=performance.now(); highlight(toolEl,true); highlight(stationEl,true);
@@ -468,19 +466,56 @@ button{font:inherit}
     });
   }
   
+  // --- TUTORIAL RESTAURADO Y MEJORADO ---
   async function runTutorial(){
     cancelVoice(); isTutorial=true; tutorialCanceled=false; suppressTutorialSpeech=false; lockInput=true;
     pauseBtn.disabled = true; el('.belt').classList.add('disabled'); showSkip();
     score=0; order=GAME_CONSTANTS.ORDER_MAX; setOrder(order); scoreTxt.textContent='0'; round=0; roundTxt.textContent='0'; buildBoard(); phrase.textContent='';
+
     try{
-      await tSpeakAsync('¡Bienvenido, Guardián! Tu misión es mantener el Orden del Salón.');
-      const ev1=spawnEventCustom('cloth',0,99999); await tSpeakAsync('Regla uno: Paño seco. Si ves una gota, arrastra el paño.'); await animateToolToStation('cloth',0,true,ev1,1200);
-      const ev2=spawnEventCustom('turns',1,99999); await tSpeakAsync('Regla dos: Reloj de espera. Si alguien no respeta su turno, arrastra el reloj.'); await animateToolToStation('turns',1,true,ev2,1200);
-      const ev3=spawnEventCustom('power',2,99999); await tSpeakAsync('Regla tres: Botón de apagado. Si una tablet se queda sola, arrastra el botón para apagarla.'); await animateToolToStation('power',2,true,ev3,1200);
-      await tSpeakAsync('¡Ten cuidado! Si la barra de tiempo se agota, perderás orden.');
+      await tSpeakAsync('¡Bienvenido, Guardián! Aprende las tres reglas para mantener el Orden del Salón.');
+      if (tutorialCanceled) return;
+
+      // Regla 1: Paño Seco
+      const ev1=spawnEventCustom('cloth',0,99999);
+      await tSpeakAsync('Regla uno: Paño seco. Si ves una gota de agua en una pantalla, arrastra el paño para limpiarla.');
+      if (tutorialCanceled) return;
+      await animateToolToStation('cloth',0,true,ev1);
+      
+      // Regla 2: Reloj de Espera (Turnos)
+      const ev2=spawnEventCustom('turns',1,99999);
+      await tSpeakAsync('Regla dos: Reloj de espera. Si un compañero no respeta su turno, arrastra el reloj para recordarle que debe compartir.');
+      if (tutorialCanceled) return;
+      await animateToolToStation('turns',1,true,ev2);
+      
+      // Regla 3: Botón de Apagado
+      const ev3=spawnEventCustom('power',2,99999);
+      await tSpeakAsync('Regla tres: Botón de apagado. Si una tablet se queda sola y encendida, arrastra el botón para apagarla y ahorrar batería.');
+      if (tutorialCanceled) return;
+      await animateToolToStation('power',2,true,ev3);
+
+      // Demostración de un error
+      const evFail=spawnEventCustom('cloth',3,99999);
+      await tSpeakAsync('Ahora, observa qué pasa si usamos la herramienta incorrecta.');
+      if (tutorialCanceled) return;
+      await animateToolToStation('power',3,false,evFail);
+      await tSpeakAsync('Perdimos orden y puntos. ¡Pero aprendimos la lección!');
+      if (tutorialCanceled) return;
+
       await tSpeakAsync('¡Estás listo! Comienza la misión.');
-    }catch(e){}
-    if (!tutorialCanceled) startGame();
+
+    } catch(e){
+      // Silently catch errors if tutorial is skipped.
+    } finally {
+      // Limpia cualquier evento de tutorial restante si se salta a mitad de una animación.
+      eventsActive.forEach(e => { try { e.el.remove(); } catch(err) {} });
+      eventsActive = [];
+      stations.forEach(s => s.busy = false);
+      // Solo inicia el juego si el tutorial no fue cancelado.
+      if (!tutorialCanceled) {
+        startGame();
+      }
+    }
   }
 
   function showSkip(){ skipBtn.style.display='block'; }
@@ -491,7 +526,10 @@ button{font:inherit}
   window.addEventListener('keydown', e=>{ if(startScreen.style.display!=='none' && (e.key==='Enter'||e.key===' ')){ SoundManager.init(); hideStartScreen(); runTutorial(); } });
 
   skipBtn.addEventListener('click', ()=>{
-    tutorialCanceled=true; suppressTutorialSpeech=true; cancelVoice();
+    tutorialCanceled=true;
+    suppressTutorialSpeech=true;
+    cancelVoice();
+    // Limpieza inmediata y comienzo del juego.
     eventsActive.forEach(e => { try { e.el.remove(); } catch(err) {} });
     eventsActive = [];
     stations.forEach(s => s.busy = false);
@@ -551,7 +589,6 @@ button{font:inherit}
     }
   }
   pauseBtn.addEventListener('click', togglePause);
-  // CORRECCIÓN PAUSA: El nuevo botón también llama a togglePause
   resumeBtn.addEventListener('click', togglePause);
   window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'p' && !cfgModal.classList.contains('show') && !endModal.classList.contains('show')) togglePause(); });
 
