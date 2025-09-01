@@ -33,11 +33,10 @@ button{font:inherit}
 
 /* Juego */
 .screen{display:block}
-.card{border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .board{margin-top:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .station{position:relative;min-height:160px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);overflow:hidden}
-.avatar{position:absolute;left:10px;top:8px;font-size:40px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))}
-.cape{position:absolute;left:26px;top:36px;width:26px;height:18px;background:linear-gradient(180deg,var(--cape),var(--cape-dark));border-radius:0 0 16px 16px;transform:skewX(-12deg) rotate(-6deg);opacity:.85}
+.avatar{position:absolute;left:10px;top:8px;font-size:40px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3)); z-index: 2;}
+.cape{position:absolute;left:26px;top:36px;width:26px;height:18px;background:linear-gradient(180deg,var(--cape),var(--cape-dark));border-radius:0 0 16px 16px;transform:skewX(-12deg) rotate(-6deg);opacity:.85; z-index: 1;}
 .tablet2{position:absolute;right:12px;bottom:12px;width:100px;height:64px;border-radius:10px;background:linear-gradient(180deg,#1a3350,#0e2136);border:2px solid #3cc1ff;box-shadow:0 8px 16px rgba(60,193,255,.25)}
 .event{position:absolute;right:18px;top:10px;display:flex;gap:6px;align-items:center;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.18);padding:6px 8px;border-radius:12px;backdrop-filter:blur(2px)}
 .icon{font-size:22px}
@@ -47,7 +46,7 @@ button{font:inherit}
 
 /* Cinturón */
 .belt{position:sticky;bottom:6px;margin-top:10px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
-.tool{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:120px;padding:10px;border-radius:16px;border:2px solid var(--tool);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));cursor:grab;touch-action:none;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.tool{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:120px;padding:10px;border-radius:16px;border:2px solid var(--tool);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));cursor:grab;touch-action:none;box-shadow:0 6px 0 rgba(0,0,0,.25); user-select: none;}
 .tool .ticon{font-size:26px}
 .tool .tname{font-weight:800;color:#cfeeff;text-align:center}
 .tool.breathe{animation:breath 1.6s ease-in-out infinite}@keyframes breath{50%{transform:translateY(-2px);box-shadow:0 8px 0 rgba(0,0,0,.25)}}
@@ -55,42 +54,71 @@ button{font:inherit}
 
 /* Fantasma de arrastre */
 .ghost{position:fixed;left:0;top:0;transform:translate(-9999px,-9999px);pointer-events:none;padding:8px 12px;border-radius:999px;background:#0b1c2b;border:2px solid var(--tool);z-index:9999}
-
-/* Frases */
 #phrase{margin-top:8px;text-align:center;font-weight:800;color:#cdefff;min-height:26px}
-
-/* Modal final – opaco, con botones de color */
 .modal{position:fixed;inset:0;background:#08131f;display:none;align-items:center;justify-content:center;z-index:9998;padding:12px}
 .modal.show{display:flex}
 .modal .inner{width:min(720px,96%);background:#0f2236;border:1px solid rgba(255,255,255,.25);border-radius:16px;padding:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .action{padding:12px 16px;border-radius:14px;border:2px solid transparent;cursor:pointer;font-weight:900;font-size:18px}
-
-/* Botones de color (alto contraste) */
 .btn-blue{background:#1e63ff;border-color:#0a3ed4;color:#ffffff}
 .btn-blue:focus{outline:3px solid #9db5ff}
 .btn-green{background:#13b26b;border-color:#0a7a49;color:#ffffff}
 .btn-green:focus{outline:3px solid #a7f3c3}
 .btn-red{background:#f04444;border-color:#b01212;color:#ffffff}
 .btn-red:focus{outline:3px solid #ffc0c0}
-
-/* Botón Saltar tutorial */
 #skipTut{position:fixed;top:8px;right:8px;z-index:9999;display:none;padding:10px 12px;border-radius:12px;border:2px solid var(--accent);background:rgba(255,213,77,.25);color:#fff;font-weight:900;cursor:pointer}
-
-/* Temas */
 .theme-lab{--bg1:#141530;--bg2:#2a2457;--brand:#9b7bff}
 .theme-library{--bg1:#1b2a18;--bg2:#2d4a25;--brand:#7bd77b}
+
+.floating-score {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 900;
+  pointer-events: none;
+  animation: floatUp 1s ease-out forwards;
+  text-shadow: 0 2px 4px rgba(0,0,0,.5);
+}
+@keyframes floatUp { to { transform: translate(-50%, -150%); opacity: 0; } }
+
+/* CORRECCIÓN PAUSA: Estilos para el nuevo contenido del overlay */
+#pauseOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 19, 31, 0.85);
+  backdrop-filter: blur(5px);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9997;
+  user-select: none;
+  flex-direction: column;
+}
+.pause-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.pause-content h1 {
+  margin: 0;
+  font-size: clamp(40px, 8vw, 70px);
+  text-shadow: 0 0 15px var(--accent);
+}
 </style>
 </head>
 <body>
-<!-- Inicio verde -->
+
 <div id="startScreen" role="button" aria-label="Iniciar tutorial. Toca en cualquier lugar.">
   <h1>Guardianes del Salón</h1>
   <div class="startBtn">Iniciar</div>
   <div style="opacity:.9;font-weight:800">Toca o haz clic en cualquier parte para comenzar</div>
 </div>
 
-<!-- Saltar tutorial -->
 <button id="skipTut" aria-label="Saltar tutorial">⏭️ Saltar tutorial</button>
 
 <div id="app" aria-live="polite">
@@ -100,6 +128,7 @@ button{font:inherit}
     <div class="badge">Ronda: <span id="roundTxt">0</span>/3</div>
     <div class="badge">Puntos: <span id="scoreTxt">0</span></div>
     <div class="badge">Récord: <span id="hiTxt">0</span></div>
+    <button class="action btn-blue" id="pauseBtn" aria-label="Pausar juego">❚❚</button>
     <button class="action btn-green" id="openCfg" aria-label="Abrir configuración">⚙️</button>
   </div>
 
@@ -114,7 +143,6 @@ button{font:inherit}
     </div>
   </section>
 
-  <!-- Modal final (opaco + botones de color) -->
   <div id="endModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="endTitle">
     <div class="inner">
       <div class="row" style="justify-content:space-between">
@@ -128,8 +156,6 @@ button{font:inherit}
       <div class="row" style="margin-top:14px;justify-content:center">
         <button class="action btn-blue" id="retryBtn" aria-label="Botón azul: Volver a jugar">🔵 Volver a jugar</button>
         <button class="action btn-green" id="menuBtn" aria-label="Botón verde: Volver al inicio">🟢 Volver al inicio</button>
-        <!-- Opcional de ejemplo: botón rojo (oculto por defecto). Para activarlo, quita display:none en style -->
-        <button class="action btn-red" id="exitBtn" style="display:none" aria-label="Botón rojo: Salir del juego">🔴 Salir</button>
       </div>
       <hr style="border-color:rgba(255,255,255,.2)">
       <div class="h1" style="color:var(--accent)">Escenarios desbloqueables</div>
@@ -140,7 +166,6 @@ button{font:inherit}
     </div>
   </div>
 
-  <!-- Config -->
   <div id="cfgModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="cfgTitle">
     <div class="inner">
       <div class="h1" id="cfgTitle">Personalización</div>
@@ -152,8 +177,8 @@ button{font:inherit}
         <label>Escenario:
           <select id="scenarioSel">
             <option value="tech">Salón de Tecnología</option>
-            <option value="library" disabled>Biblioteca Digital (bloqueado)</option>
-            <option value="lab" disabled>Laboratorio de Robótica (bloqueado)</option>
+            <option value="library" disabled>Biblioteca Digital</option>
+            <option value="lab" disabled>Laboratorio de Robótica</option>
           </select>
         </label>
       </div>
@@ -165,74 +190,143 @@ button{font:inherit}
   </div>
 </div>
 
+<!-- CORRECCIÓN PAUSA: El overlay ahora contiene un botón para reanudar -->
+<div id="pauseOverlay" style="display:none;">
+  <div class="pause-content">
+    <h1>PAUSA</h1>
+    <button id="resumeBtn" class="action btn-green">▶️ Reanudar</button>
+  </div>
+</div>
+
 <script>
 (()=> {
   const el = s => document.querySelector(s);
   const els = s => Array.from(document.querySelectorAll(s));
   const board=el('#board'), orderBar=el('#orderBar'), roundTxt=el('#roundTxt'), scoreTxt=el('#scoreTxt'), phrase=el('#phrase');
   const endModal=el('#endModal'), cfgModal=el('#cfgModal'), scenarioName=el('#scenarioName'), startScreen=el('#startScreen'), skipBtn=el('#skipTut'), hiTxt=el('#hiTxt');
+  const pauseBtn=el('#pauseBtn'), pauseOverlay=el('#pauseOverlay');
+  // CORRECCIÓN PAUSA: Seleccionar el nuevo botón de reanudar
+  const resumeBtn = el('#resumeBtn');
 
-  const VOICE_RATE=.95, ORDER_MAX=100;
+  const GAME_CONSTANTS = {
+    ORDER_MAX: 100,
+    POINTS_SUCCESS: 10,
+    POINTS_FAIL: -10,
+    ORDER_SUCCESS: 8,
+    ORDER_FAIL: -15,
+    VOICE_RATE: 0.95,
+  };
 
-  let score=0, order=ORDER_MAX, round=0, running=false;
+  let score=0, order=GAME_CONSTANTS.ORDER_MAX, round=0, running=false;
   let eventsActive=[], ghost=null, dragTool=null;
   let isTutorial=false, tutorialCanceled=false, suppressTutorialSpeech=false, lockInput=false;
   let highScore= +localStorage.getItem('guardianes_hi') || 0; hiTxt.textContent=highScore;
-
   let settings = loadSettings();
+  let isPaused = false;
+  let pauseStartTime = 0;
+
+  const SoundManager = {
+    ctx: null,
+    init() {
+      if (this.ctx) return;
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    },
+    playSound(type) {
+      if (!this.ctx) return;
+      const oscillator = this.ctx.createOscillator();
+      const gainNode = this.ctx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(this.ctx.destination);
+      gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 0.05);
+      if (type === 'success') {
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(600, this.ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.1);
+      } else if (type === 'fail') {
+        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(200, this.ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.15);
+      }
+      oscillator.start();
+      gainNode.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + 0.2);
+      oscillator.stop(this.ctx.currentTime + 0.2);
+    }
+  };
 
   const stations = new Array(4).fill(0).map((_,i)=>({id:i,el:null,busy:false}));
 
   const EVENT_TYPES={
-    cloth:{key:'cloth',icon:'💧',target:'avatar',tool:'cloth',name:'Cuidado del material',successVoice:'¡Alto ahí! El agua puede causar un cortocircuito. ¡Usa este paño seco!',phrase:'¡Para la pantalla sucia, un paño seco es la astucia!'},
-    turns:{key:'turns',icon:'✋',target:'avatar',tool:'turns',name:'Respeto de turnos',successVoice:'¡Un momento! Respetar el turno es jugar en equipo.',phrase:'¡El turno es sagrado, respeto asegurado!'},
-    power:{key:'power',icon:'🔋',target:'tablet',tool:'power',name:'Apagado responsable',successVoice:'¡Espera! Si apagamos, tu compañero tendrá batería.',phrase:'¡Apagar al terminar, energía para empezar!'}
+    cloth:{key:'cloth',icon:'💧',tool:'cloth',successVoice:'¡Alto ahí! El agua puede causar un cortocircuito. ¡Usa este paño seco!',phrase:'¡Para la pantalla sucia, un paño seco es la astucia!'},
+    turns:{key:'turns',icon:'✋',tool:'turns',successVoice:'¡Un momento! Respetar el turno es jugar en equipo.',phrase:'¡El turno es sagrado, respeto asegurado!'},
+    power:{key:'power',icon:'🔋',tool:'power',successVoice:'¡Espera! Si apagamos, tu compañero tendrá batería.',phrase:'¡Apagar al terminar, energía para empezar!'}
   };
+  
+  const DIFF=[
+    {time:8000, concurrent:1, spawnDelay:[1200,1600]},
+    {time:7500, concurrent:2, spawnDelay:[1000,1400]},
+    {time:6000, concurrent:2, spawnDelay:[800, 1200]}
+  ];
 
-  const DIFF=[{time:5000,concurrent:1,spawnDelay:[900,1300]},{time:4000,concurrent:1,spawnDelay:[750,1100]},{time:3000,concurrent:2,spawnDelay:[600,950]}];
   const RONDA_SPAWNS=[8,10,12]; let spawnsDone=0;
 
-  // --------- Utils: Voz ---------
   function cancelVoice(){ try{ speechSynthesis.cancel(); }catch(e){} }
   function gameSpeak(text){
-    try{ const u=new SpeechSynthesisUtterance(text); u.lang='es-MX'; u.rate=VOICE_RATE; speechSynthesis.speak(u);}catch(e){}
+    if (suppressTutorialSpeech) return;
+    try{ const u=new SpeechSynthesisUtterance(text); u.lang='es-MX'; u.rate=GAME_CONSTANTS.VOICE_RATE; speechSynthesis.speak(u);}catch(e){}
   }
   function tSpeakAsync(text){
     return new Promise(res=>{
       if(suppressTutorialSpeech) return res();
-      try{ const u=new SpeechSynthesisUtterance(text); u.lang='es-MX'; u.rate=VOICE_RATE; u.onend=()=>res(); u.onerror=()=>res(); speechSynthesis.speak(u);}catch(e){ res(); }
+      try{ const u=new SpeechSynthesisUtterance(text); u.lang='es-MX'; u.rate=GAME_CONSTANTS.VOICE_RATE; u.onend=()=>res(); u.onerror=()=>res(); speechSynthesis.speak(u);}catch(e){ res(); }
     });
   }
   function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
   function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-  function setOrder(v){ order=Math.max(0,Math.min(ORDER_MAX,v)); orderBar.style.width=(order/ORDER_MAX*100)+'%'; }
+  function setOrder(v){ order=Math.max(0,Math.min(GAME_CONSTANTS.ORDER_MAX,v)); orderBar.style.width=(order/GAME_CONSTANTS.ORDER_MAX*100)+'%'; }
   function addPoints(n){ score+=n; scoreTxt.textContent=score; }
   function showPhrase(msg){ phrase.textContent=msg; phrase.classList.add('fade'); setTimeout(()=>phrase.classList.remove('fade'),400); }
   function flash(e){ if(!e) return; e.classList.add('flash'); setTimeout(()=>e.classList.remove('flash'),1300); }
   function highlight(e,on=true){ if(!e) return; e.classList.toggle('hi',!!on); }
+  
+  function showFloatingScore(stationEl, text, isSuccess) {
+    const scoreEl = document.createElement('div');
+    scoreEl.className = 'floating-score';
+    scoreEl.textContent = text;
+    scoreEl.style.color = isSuccess ? 'var(--ok)' : 'var(--danger)';
+    stationEl.appendChild(scoreEl);
+    setTimeout(() => scoreEl.remove(), 1000);
+  }
 
-  // --------- Settings / Tema ---------
   function loadSettings(){
     const raw=localStorage.getItem('guardianes_settings'); let def={cape:'#ff4dd8',toolStyle:'default',scenario:'tech',unlocked:{library:false,lab:false}};
     if(raw){ try{ def=Object.assign(def,JSON.parse(raw)); }catch(e){} }
-    applyTheme(def); return def;
+    return def;
   }
   function saveSettings(){ localStorage.setItem('guardianes_settings',JSON.stringify(settings)); }
+  
+  function updateUnlockUI() {
+    el('#scenarioSel option[value="library"]').disabled = !settings.unlocked.library;
+    el('#scenarioSel option[value="lab"]').disabled = !settings.unlocked.lab;
+    el('#unlockLibrary').disabled = !settings.unlocked.library;
+    el('#unlockLab').disabled = !settings.unlocked.lab;
+    el('#unlockLibrary').textContent = '📚 Biblioteca Digital' + (settings.unlocked.library ? ' (Jugar)' : '');
+    el('#unlockLab').textContent = '🧪 Laboratorio de Robótica' + (settings.unlocked.lab ? ' (Jugar)' : '');
+    el('#scenarioSel option[value="library"]').textContent = 'Biblioteca Digital' + (settings.unlocked.library ? '' : ' (bloqueado)');
+    el('#scenarioSel option[value="lab"]').textContent = 'Laboratorio de Robótica' + (settings.unlocked.lab ? '' : ' (bloqueado)');
+  }
+
   function applyTheme(s){
     document.documentElement.style.setProperty('--cape', s.cape||'#ff4dd8');
     document.documentElement.style.setProperty('--cape-dark', shadeColor(s.cape||'#ff4dd8', -20));
-    document.body.classList.remove('theme-lab','theme-library');
+    document.body.className = '';
     if(s.scenario==='library'){ document.body.classList.add('theme-library'); scenarioName.textContent='Biblioteca Digital'; }
     else if(s.scenario==='lab'){ document.body.classList.add('theme-lab'); scenarioName.textContent='Laboratorio de Robótica'; }
     else{ scenarioName.textContent='Salón de Tecnología'; }
-    el('#scenarioSel').querySelector('option[value="library"]').disabled=!s.unlocked?.library;
-    el('#scenarioSel').querySelector('option[value="lab"]').disabled=!s.unlocked?.lab;
-    el('#unlockLibrary').disabled=!s.unlocked?.library;
-    el('#unlockLab').disabled=!s.unlocked?.lab;
+    updateUnlockUI();
   }
   function shadeColor(hex,p){ const f=parseInt(hex.slice(1),16),t=p<0?0:255,P=Math.abs(p)/100,R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;return '#'+(0x1000000+(Math.round((t-R)*P)+R)*0x10000+(Math.round((t-G)*P)+G)*0x100+(Math.round((t-B)*P)+B)).toString(16).slice(1); }
 
-  // --------- Tablero ---------
   function buildBoard(){
     board.innerHTML=''; stations.forEach(st=>{
       const d=document.createElement('div'); d.className='station'; d.dataset.id=st.id;
@@ -241,7 +335,6 @@ button{font:inherit}
     });
   }
 
-  // --------- Eventos ---------
   function canSpawnMore(){ const conf=DIFF[round-1]; return eventsActive.length<conf.concurrent; }
   function spawnEvent(){
     const conf=DIFF[round-1], typeKey=['cloth','turns','power'][rand(0,2)];
@@ -251,12 +344,38 @@ button{font:inherit}
   function spawnEventCustom(typeKey,stationIndex,timeMs){
     const type=EVENT_TYPES[typeKey], st=stations[stationIndex]; if(!st||st.busy) return null;
     st.busy=true; const evEl=document.createElement('div'); evEl.className='event'; evEl.innerHTML=`<span class="icon">${type.icon}</span><div class="timer"><i></i></div>`; st.el.appendChild(evEl);
-    const timerBar=evEl.querySelector('i'); let start=performance.now(), ended=false;
-    const ev={station:st,type,el:evEl,timerBar};
-    function tick(now){ if(ended) return; const t=(now-start)/timeMs, rem=Math.max(0,1-t); timerBar.style.width=(rem*100)+'%'; if(rem<=0){ finishFail(); return; } ev.frame=requestAnimationFrame(tick); }
+    const timerBar=evEl.querySelector('i');
+    const ev={station:st,type,el:evEl,timerBar, totalTime: timeMs, startTime: performance.now(), ended: false};
+    
+    function tick(now){ 
+        if(ev.ended || isPaused) return; 
+        const elapsed = now - ev.startTime;
+        const progress = Math.max(0, 1 - (elapsed / ev.totalTime));
+        timerBar.style.width=(progress * 100) + '%'; 
+        if(progress <= 0){ finishFail(); return; } 
+        ev.frame=requestAnimationFrame(tick); 
+    }
+    ev.tick = tick;
     ev.frame=requestAnimationFrame(tick);
-    function finishSuccess(){ if(ended) return; ended=true; cancelAnimationFrame(ev.frame); st.busy=false; evEl.remove(); eventsActive=eventsActive.filter(e=>e!==ev); addPoints(10); setOrder(order+8); showPhrase(type.phrase); gameSpeak(type.successVoice); st.el.classList.add('fade'); setTimeout(()=>st.el.classList.remove('fade'),200); checkProgress(); }
-    function finishFail(){ if(ended) return; ended=true; cancelAnimationFrame(ev.frame); st.busy=false; evEl.remove(); eventsActive=eventsActive.filter(e=>e!==ev); addPoints(-10); setOrder(order-20); showPhrase('¡Ups! Observa y vuelve a intentarlo. Recuerda las 3 reglas.'); gameSpeak('Ha ocurrido un accidente. Revisa la regla adecuada.'); st.el.style.transition='transform .08s'; st.el.style.transform='translateX(-4px)'; setTimeout(()=>st.el.style.transform='translateX(4px)',80); setTimeout(()=>st.el.style.transform='',160); checkProgress(); }
+    
+    function finishSuccess(){ 
+        if(ev.ended) return; ev.ended=true; cancelAnimationFrame(ev.frame); st.busy=false; evEl.remove(); 
+        eventsActive=eventsActive.filter(e=>e!==ev); 
+        addPoints(GAME_CONSTANTS.POINTS_SUCCESS); setOrder(order+GAME_CONSTANTS.ORDER_SUCCESS); 
+        showPhrase(type.phrase); gameSpeak(type.successVoice); 
+        st.el.classList.add('fade'); setTimeout(()=>st.el.classList.remove('fade'),200); 
+        SoundManager.playSound('success'); showFloatingScore(st.el, `+${GAME_CONSTANTS.POINTS_SUCCESS}`, true);
+        checkProgress(); 
+    }
+    function finishFail(){ 
+        if(ev.ended) return; ev.ended=true; cancelAnimationFrame(ev.frame); st.busy=false; evEl.remove(); 
+        eventsActive=eventsActive.filter(e=>e!==ev); 
+        addPoints(GAME_CONSTANTS.POINTS_FAIL); setOrder(order-GAME_CONSTANTS.ORDER_FAIL); 
+        showPhrase('¡Ups! Observa y vuelve a intentarlo.'); gameSpeak('Ha ocurrido un accidente. Revisa la regla adecuada.'); 
+        st.el.style.transition='transform .08s'; st.el.style.transform='translateX(-4px)'; setTimeout(()=>st.el.style.transform='translateX(4px)',80); setTimeout(()=>st.el.style.transform='',160); 
+        SoundManager.playSound('fail'); showFloatingScore(st.el, `${GAME_CONSTANTS.POINTS_FAIL}`, false);
+        checkProgress(); 
+    }
     ev.finishSuccess=finishSuccess; ev.finishFail=finishFail; eventsActive.push(ev); return ev;
   }
   function checkProgress(){ if(order<=0){ endGame(false); return; } }
@@ -266,51 +385,60 @@ button{font:inherit}
     eventsActive.forEach(e=>{ try{cancelAnimationFrame(e.frame); e.el.remove(); e.station.busy=false;}catch(_){} }); eventsActive=[];
     const conf=DIFF[n-1];
     while(running && round===n){
+      if (isPaused) { await wait(100); continue; }
       if(spawnsDone>=RONDA_SPAWNS[n-1] && eventsActive.length===0) break;
       if(canSpawnMore() && spawnsDone<RONDA_SPAWNS[n-1]){ spawnEvent(); spawnsDone++; }
       await wait(rand(conf.spawnDelay[0], conf.spawnDelay[1]));
     }
-    while(running && eventsActive.length>0){ await wait(50); }
+    while(running && eventsActive.length>0){ 
+        if (isPaused) { await wait(100); } else { await wait(50); }
+    }
     if(!running) return;
     if(order<=0){ endGame(false); return; }
-    if(n<3){ gameSpeak(`Ronda ${n} completada. Prepárate.`); await wait(700); startRound(n+1); } else { endGame(true); }
+    if(n<3){ gameSpeak(`Ronda ${n} completada. Prepárate.`); await wait(1500); if(running) startRound(n+1); } else { endGame(true); }
   }
 
-  // --------- Juego principal ---------
   function startGame(){
     lockInput=false; isTutorial=false; tutorialCanceled=false; suppressTutorialSpeech=false;
     hideSkip(); cancelVoice();
     if(ghost) ghost.style.transform='translate(-9999px,-9999px)';
-
-    score=0; order=ORDER_MAX; setOrder(order); scoreTxt.textContent='0'; phrase.textContent=''; round=0; roundTxt.textContent='0';
+    score=0; order=GAME_CONSTANTS.ORDER_MAX; setOrder(order); scoreTxt.textContent='0'; phrase.textContent=''; round=0; roundTxt.textContent='0';
     buildBoard(); running=true; el('.belt').classList.remove('disabled');
+    pauseBtn.disabled = false;
+    if (isPaused) togglePause();
     gameSpeak('¡Comienza la misión! Observa las estaciones y actúa con rapidez.');
     startRound(1);
   }
 
   function endGame(victory){
     running=false;
+    pauseBtn.disabled = true;
     if(score>highScore){ highScore=score; localStorage.setItem('guardianes_hi',String(highScore)); }
     el('#finalScore').textContent=score; hiTxt.textContent=highScore; el('#finalHi').textContent=highScore;
     let med='🥉'; if(score>=220) med='🥈'; if(score>=280) med='🥇'; el('#medal').textContent=med;
-
     if(victory){
       el('#endMsg').innerHTML='¡Victoria! Mantuvimos el Orden del Salón. Recibe la <b>Capa de Guardián Líder</b>.';
+      if (settings.scenario === 'tech' && !settings.unlocked.library) {
+        settings.unlocked.library = true;
+        el('#endMsg').innerHTML += '<br>¡Has desbloqueado la <b>Biblioteca Digital</b>!';
+      } else if (settings.scenario === 'library' && !settings.unlocked.lab) {
+        settings.unlocked.lab = true;
+        el('#endMsg').innerHTML += '<br>¡Has desbloqueado el <b>Laboratorio de Robótica</b>!';
+      }
+      saveSettings();
+      updateUnlockUI();
     }else{
       el('#endMsg').innerHTML='El Orden del Salón llegó a cero. Repasemos las reglas y volvamos a intentar.';
     }
-
-    // Explicación por voz orientada por color
     cancelVoice();
-    gameSpeak('Pantalla final. Escucha: El botón AZUL dice "Volver a jugar". Tócalo para empezar otra partida. El botón VERDE dice "Volver al inicio". Tócalo para regresar a la pantalla verde.');
-
+    gameSpeak('Pantalla final. El botón AZUL es para volver a jugar. El botón VERDE es para volver al inicio.');
     endModal.classList.add('show');
   }
 
-  // --------- Drag & Drop ---------
   function makeGhost(label){ if(!ghost){ ghost=document.createElement('div'); ghost.className='ghost'; document.body.appendChild(ghost); } ghost.textContent=label; return ghost; }
   function onPointerDownTool(ev){
-    if(lockInput) return;
+    if(lockInput || isPaused) return;
+    ev.preventDefault();
     const t=ev.currentTarget; dragTool={type:t.dataset.tool, el:t}; t.setAttribute('aria-grabbed','true');
     const label=t.querySelector('.ticon').textContent+' '+t.querySelector('.tname').textContent;
     const g=makeGhost(label); g.style.transform=`translate(${ev.clientX}px, ${ev.clientY}px)`;
@@ -325,14 +453,11 @@ button{font:inherit}
   }
   function addGlobalDragListeners(){ window.addEventListener('pointermove',onPointerMove); window.addEventListener('pointerup',onPointerUp,{once:true}); }
   function removeGlobalDragListeners(){ window.removeEventListener('pointermove',onPointerMove); window.removeEventListener('pointerup',onPointerUp); }
-
   els('.tool').forEach(t=>{
     t.addEventListener('pointerdown', onPointerDownTool);
-    t.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onPointerDownTool({currentTarget:t, clientX:0, clientY:0}); }});
+    t.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onPointerDownTool({currentTarget:t, clientX:0, clientY:0, preventDefault:()=>{}}); }});
   });
-
-  // --------- Tutorial (cancelable y con salto) ---------
-  function centerOf(elm){ const r=elm.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}; }
+  
   async function animateToolToStation(toolType, stationIndex, succeed=true, evObj=null, ms=900){
     const toolEl=el(`.tool[data-tool="${toolType}"]`), stationEl=stations[stationIndex]?.el; if(!toolEl||!stationEl) return;
     const label=toolEl.querySelector('.ticon').textContent+' '+toolEl.querySelector('.tname').textContent, g=makeGhost(label);
@@ -342,65 +467,45 @@ button{font:inherit}
       requestAnimationFrame(step);
     });
   }
-
+  
   async function runTutorial(){
-    cancelVoice();
-    isTutorial=true; tutorialCanceled=false; suppressTutorialSpeech=false; lockInput=true;
-    el('.belt').classList.add('disabled'); showSkip();
-
-    score=0; order=ORDER_MAX; setOrder(order); scoreTxt.textContent='0'; round=0; roundTxt.textContent='0'; buildBoard(); phrase.textContent='';
-
+    cancelVoice(); isTutorial=true; tutorialCanceled=false; suppressTutorialSpeech=false; lockInput=true;
+    pauseBtn.disabled = true; el('.belt').classList.add('disabled'); showSkip();
+    score=0; order=GAME_CONSTANTS.ORDER_MAX; setOrder(order); scoreTxt.textContent='0'; round=0; roundTxt.textContent='0'; buildBoard(); phrase.textContent='';
     try{
-      await tSpeakAsync('¡Bienvenido, Guardián! Mantén el Orden del Salón usando tres reglas.');
-      flash(el('#orderWrap')); highlight(el('#orderWrap'),true); await tSpeakAsync('Arriba está el Medidor de Orden. Si aciertas, sube. Si fallas, baja.'); highlight(el('#orderWrap'),false);
-      flash(el('#roundTxt').parentElement); highlight(el('#roundTxt').parentElement,true); await tSpeakAsync('Jugarás tres rondas con dificultad progresiva.'); highlight(el('#roundTxt').parentElement,false);
-      flash(el('#scoreTxt').parentElement); highlight(el('#scoreTxt').parentElement,true); await tSpeakAsync('Cada acierto suma diez puntos y cada error resta diez.'); highlight(el('#scoreTxt').parentElement,false);
-      const belt=el('.belt'); flash(belt); highlight(belt,true); await tSpeakAsync('Este es tu cinturón. Arrastra la herramienta correcta a la estación con el problema.'); highlight(belt,false);
-
-      const ev1=spawnEventCustom('cloth',0,6000); await tSpeakAsync('Herramienta uno: Paño seco. Si ves una gota, nunca uses agua.'); await animateToolToStation('cloth',0,true,ev1,900); await tSpeakAsync('Para la pantalla sucia, un paño seco es la astucia.');
-      const ev2=spawnEventCustom('turns',1,6000); await tSpeakAsync('Herramienta dos: Reloj de espera. Si alguien arrebata, recordamos respetar el turno.'); await animateToolToStation('turns',1,true,ev2,900); await tSpeakAsync('El turno es sagrado, respeto asegurado.');
-      const ev3=spawnEventCustom('power',2,6000); await tSpeakAsync('Herramienta tres: Botón de apagado. Si una tablet queda sola con batería baja, la apagamos.'); await animateToolToStation('power',2,true,ev3,900); await tSpeakAsync('Apagar al terminar, energía para empezar.');
-      const ev4=spawnEventCustom('turns',3,5000); flash(stations[3].el); await tSpeakAsync('Fíjate en la barra de tiempo. Si se vacía, ocurre un accidente.'); await animateToolToStation('turns',3,true,ev4,900);
-      const evFail=spawnEventCustom('cloth',0,6000); await tSpeakAsync('Observa un error: aquí va paño seco, pero pondré apagado por error.'); await animateToolToStation('power',0,false,evFail,900); await tSpeakAsync('Perdimos puntos y bajó el Orden. Aprendemos y seguimos.');
-      await tSpeakAsync('¡Listo! Ahora empieza la misión.');
+      await tSpeakAsync('¡Bienvenido, Guardián! Tu misión es mantener el Orden del Salón.');
+      const ev1=spawnEventCustom('cloth',0,99999); await tSpeakAsync('Regla uno: Paño seco. Si ves una gota, arrastra el paño.'); await animateToolToStation('cloth',0,true,ev1,1200);
+      const ev2=spawnEventCustom('turns',1,99999); await tSpeakAsync('Regla dos: Reloj de espera. Si alguien no respeta su turno, arrastra el reloj.'); await animateToolToStation('turns',1,true,ev2,1200);
+      const ev3=spawnEventCustom('power',2,99999); await tSpeakAsync('Regla tres: Botón de apagado. Si una tablet se queda sola, arrastra el botón para apagarla.'); await animateToolToStation('power',2,true,ev3,1200);
+      await tSpeakAsync('¡Ten cuidado! Si la barra de tiempo se agota, perderás orden.');
+      await tSpeakAsync('¡Estás listo! Comienza la misión.');
     }catch(e){}
-    startGame();
+    if (!tutorialCanceled) startGame();
   }
 
   function showSkip(){ skipBtn.style.display='block'; }
   function hideSkip(){ skipBtn.style.display='none'; }
-
-  // Inicio verde
   function hideStartScreen(){ startScreen.style.display='none'; }
-  function showStartScreen(){ startScreen.style.display='flex'; }
-  startScreen.addEventListener('click', ()=>{ hideStartScreen(); runTutorial(); });
-  window.addEventListener('keydown', e=>{ if(startScreen.style.display!=='none' && (e.key==='Enter'||e.key===' ')){ hideStartScreen(); runTutorial(); } });
+  function showStartScreen(){ startScreen.style.display='flex'; running = false; cancelVoice(); }
+  startScreen.addEventListener('click', ()=>{ SoundManager.init(); hideStartScreen(); runTutorial(); });
+  window.addEventListener('keydown', e=>{ if(startScreen.style.display!=='none' && (e.key==='Enter'||e.key===' ')){ SoundManager.init(); hideStartScreen(); runTutorial(); } });
 
-  // Saltar tutorial (silencia voz del tutorial)
   skipBtn.addEventListener('click', ()=>{
-    tutorialCanceled=true;
-    suppressTutorialSpeech=true;
-    cancelVoice();
+    tutorialCanceled=true; suppressTutorialSpeech=true; cancelVoice();
+    eventsActive.forEach(e => { try { e.el.remove(); } catch(err) {} });
+    eventsActive = [];
+    stations.forEach(s => s.busy = false);
     startGame();
   });
 
-  // Botones modal/config
   el('#retryBtn').addEventListener('click', ()=>{ endModal.classList.remove('show'); startGame(); });
-  el('#menuBtn').addEventListener('click', ()=>{ endModal.classList.remove('show'); cancelVoice(); showStartScreen(); });
-  const exitBtn = el('#exitBtn');
-  if(exitBtn){
-    exitBtn.addEventListener('click', ()=>{ cancelVoice(); // comportamiento opcional
-      // window.close(); // la mayoría de navegadores no permiten cerrar pestañas no abiertas por script
-      showStartScreen(); endModal.classList.remove('show');
-    });
-  }
-
+  el('#menuBtn').addEventListener('click', ()=>{ endModal.classList.remove('show'); showStartScreen(); });
+  
   el('#openCfg').addEventListener('click', ()=>{
     el('#capePicker').value=settings.cape||'#ff4dd8';
     el('#toolStyle').value=settings.toolStyle||'default';
-    const sel=el('#scenarioSel'); sel.value=settings.scenario||'tech';
-    sel.querySelector('option[value="library"]').disabled=!settings.unlocked.library;
-    sel.querySelector('option[value="lab"]').disabled=!settings.unlocked.lab;
+    el('#scenarioSel').value=settings.scenario||'tech';
+    updateUnlockUI();
     cfgModal.classList.add('show');
   });
   el('#saveCfg').addEventListener('click', ()=>{
@@ -410,12 +515,49 @@ button{font:inherit}
     cfgModal.classList.remove('show');
   });
   el('#closeCfg').addEventListener('click', ()=>cfgModal.classList.remove('show'));
-  el('#unlockLibrary').addEventListener('click', ()=>{ settings.scenario='library'; saveSettings(); applyTheme(settings); endModal.classList.remove('show'); });
-  el('#unlockLab').addEventListener('click', ()=>{ settings.scenario='lab'; saveSettings(); applyTheme(settings); endModal.classList.remove('show'); });
 
-  // Inicialización
+  function playUnlockedScenario(scenarioKey) {
+    if (!settings.unlocked[scenarioKey]) return;
+    settings.scenario = scenarioKey;
+    saveSettings();
+    applyTheme(settings);
+    endModal.classList.remove('show');
+    startGame();
+  }
+  el('#unlockLibrary').addEventListener('click', () => playUnlockedScenario('library'));
+  el('#unlockLab').addEventListener('click', () => playUnlockedScenario('lab'));
+
+  function togglePause() {
+    if (!running || isTutorial) return;
+    isPaused = !isPaused;
+    if (isPaused) {
+      pauseStartTime = performance.now();
+      eventsActive.forEach(ev => cancelAnimationFrame(ev.frame));
+      pauseOverlay.style.display = 'flex';
+      el('.belt').classList.add('disabled');
+      pauseBtn.textContent = '▶️';
+      pauseBtn.setAttribute('aria-label', 'Reanudar juego');
+      cancelVoice();
+    } else {
+      const pausedDuration = performance.now() - pauseStartTime;
+      eventsActive.forEach(ev => {
+        ev.startTime += pausedDuration;
+        ev.frame = requestAnimationFrame(ev.tick);
+      });
+      pauseOverlay.style.display = 'none';
+      el('.belt').classList.remove('disabled');
+      pauseBtn.textContent = '❚❚';
+      pauseBtn.setAttribute('aria-label', 'Pausar juego');
+    }
+  }
+  pauseBtn.addEventListener('click', togglePause);
+  // CORRECCIÓN PAUSA: El nuevo botón también llama a togglePause
+  resumeBtn.addEventListener('click', togglePause);
+  window.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'p' && !cfgModal.classList.contains('show') && !endModal.classList.contains('show')) togglePause(); });
+
+  applyTheme(settings);
   buildBoard();
-  setInterval(()=>{ els('.tool').forEach(t=>t.classList.toggle('breathe')); },1800);
+  setInterval(()=>{ if(!isPaused) els('.tool').forEach(t=>t.classList.toggle('breathe')); },1800);
 })();
 </script>
 </body>
